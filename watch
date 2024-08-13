@@ -1,0 +1,15 @@
+#!/bin/bash
+
+check-bondslave() {
+  cat /proc/net/bonding/bond0 | grep -A1 "Slave Interface: ${1}" | grep -v 'Slave Interface' | sed -En 's/MII Status: //p'
+}
+
+if [ "$(check-bondslave xtain-fsn)" != "up" ]; then
+  echo "Restart eoip@xtain-fsn"
+  systemctl restart eoip@xtain-fsn
+fi;
+
+if [ "$(check-bondslave xtain-nbg)" != "up" ]; then
+  echo "Restart eoip@xtain-nbg"
+  systemctl restart eoip@xtain-nbg
+fi;

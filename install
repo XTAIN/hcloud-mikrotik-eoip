@@ -1,0 +1,67 @@
+#!/bin/sh
+
+echo "Install EOIP binary"
+cp /opt/xtain-hcloud-network/eoip /usr/local/bin/eoip
+chmod +x /usr/local/bin/eoip
+
+echo "Install eoip service"
+cp /opt/xtain-hcloud-network/eoip@.service /etc/systemd/system/eoip@.service
+cp /opt/xtain-hcloud-network/eoip-watch.service /etc/systemd/system/eoip-watch.service
+cp /opt/xtain-hcloud-network/eoip-watch.timer /etc/systemd/system/eoip-watch.timer
+systemctl daemon-reload
+cp /opt/xtain-hcloud-network/interfaces-bond /etc/network/interfaces.d/60-bond
+
+if ! test -f /etc/xtain-hcloud-network; then
+  mkdir -p /etc/xtain-hcloud-network
+fi
+
+default_interface=$(ip route get 172.31.0.1 | perl -nle 'if ( /dev\s+(\S+)/ ) {print $1}')
+local=$(ip -f inet addr show ${default_interface} | sed -En -e 's/.*inet ([0-9.]+).*/\1/p')
+echo ${local} > /etc/xtain-hcloud-network/local
+
+if test "${1}"; then
+  echo ${1} > /etc/xtain-hcloud-network/ip
+fi
+
+if test -f /etc/xtain-hcloud-network/ip; then
+  ip=$(cat /etc/xtain-hcloud-network/ip)
+fi
+
+if test "${ip}"; then
+  cat > /etc/network/interfaces <<EOF
+source /etc/network/interfaces.d/*
+
+auto lo
+iface lo inet loopback
+
+auto vmbr40
+iface vmbr40 inet static
+	address ${ip}
+	network 255.255.255.0
+	gateway 10.0.0.1
+	bridge-ports bond0
+	bridge-stp off
+	bridge-fd 0
+	dns-nameservers 172.31.24.1
+EOF
+
+  cat > /etc/hosts <<EOF
+${ip} $(hostname -s) $(hostname -s).xtain.net
+127.0.0.1 localhost
+
+# The following lines are desirable for IPv6 capable hosts
+::1 localhost ip6-localhost ip6-loopback
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+EOF
+fi
+
+systemctl enable eoip-watch.timer
+systemctl start eoip-watch.timer
+systemctl enable eoip@xtain-fsn
+systemctl enable eoip@xtain-nbg
+systemctl start eoip@xtain-fsn
+systemctl start eoip@xtain-nbg
+
+ifup bond0
+ifup vmbr40

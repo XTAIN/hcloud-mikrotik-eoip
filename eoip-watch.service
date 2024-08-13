@@ -1,0 +1,6 @@
+[Unit]
+Description=EOIP Watch
+
+[Service]
+Type=oneshot
+ExecStart=/opt/xtain-hcloud-network/watch

@@ -1,0 +1,36 @@
+#!/bin/sh
+
+local=$(cat /etc/xtain-hcloud-network/local)
+interface=${1}
+
+case $interface in
+  xtain-nbg)
+    remote=172.31.24.2
+    id=200
+    ;;
+  xtain-fsn)
+    remote=172.31.24.1
+    id=100
+    ;;
+esac
+
+last_bit=${local##*.}
+echo "Last bit of addr $last_bit"
+id=$((id + last_bit))
+
+echo "Setup interface ${interface}"
+ip tuntap del mode tap ${interface}
+ip tuntap add mode tap ${interface}
+
+echo "Down interfaces"
+ifconfig ${interface} down
+
+echo "Add interface to bond0"
+ip link set master bond0 dev ${interface}
+
+echo "Start tunnel with interface ${interface} from ${local} to ${remote} id ${id}"
+
+while true; do
+  ifconfig ${interface} up
+  /usr/local/bin/eoip -4 ${interface} local ${local} remote ${remote} id ${id}
+done

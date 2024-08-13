@@ -1,0 +1,6 @@
+#!/bin/sh
+
+echo "Start setup"
+cd /opt/xtain-hcloud-network
+git pull
+/opt/xtain-hcloud-network/install

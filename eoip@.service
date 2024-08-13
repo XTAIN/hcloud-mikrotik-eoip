@@ -1,0 +1,10 @@
+[Unit]
+Description=EOIP %i
+
+[Service]
+Type=simple
+Restart=always
+ExecStart=/opt/xtain-hcloud-network/connect %i
+
+[Install]
+WantedBy=multi-user.target

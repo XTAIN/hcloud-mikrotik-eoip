@@ -1,0 +1,9 @@
+[Unit]
+Description=EOIP Watch
+
+[Timer]
+OnCalendar=*:0/1
+Unit=eoip-watch.service
+
+[Install]
+WantedBy=multi-user.target
