@@ -2,7 +2,7 @@ if [ -z "$ip" ]; then
   echo "no ip configured";
   exit 1
 fi;
-ip route add default via 172.13.0.1
+ip route add default via 172.31.0.1
 echo "nameserver 8.8.8.8" > /etc/resolv.conf
 apt update
 DEBIAN_FRONTEND=noninteractive apt upgrade -y
