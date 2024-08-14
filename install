@@ -34,10 +34,19 @@ source /etc/network/interfaces.d/*
 auto lo
 iface lo inet loopback
 
+auto bond0
+iface bond0 inet manual
+        bond-slaves none
+        bond-miimon 100
+        bond-mode active-backup
+        pre-up ip tuntap add mode tap xtain-fsn
+        pre-up ip tuntap add mode tap xtain-nbg
+        post-up echo 1000 > /sys/class/net/bond0/bonding/arp_interval
+        post-up echo +10.0.0.1 > /sys/class/net/bond0/bonding/arp_ip_target
+
 auto vmbr40
 iface vmbr40 inet static
-	address ${ip}
-	network 255.255.255.0
+	address ${ip}/24
 	gateway 10.0.0.1
 	bridge-ports bond0
 	bridge-stp off
