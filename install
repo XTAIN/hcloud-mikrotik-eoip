@@ -9,7 +9,6 @@ cp /opt/xtain-hcloud-network/eoip@.service /etc/systemd/system/eoip@.service
 cp /opt/xtain-hcloud-network/eoip-watch.service /etc/systemd/system/eoip-watch.service
 cp /opt/xtain-hcloud-network/eoip-watch.timer /etc/systemd/system/eoip-watch.timer
 systemctl daemon-reload
-cp /opt/xtain-hcloud-network/interfaces-bond /etc/network/interfaces.d/60-bond
 
 if ! test -f /etc/xtain-hcloud-network; then
   mkdir -p /etc/xtain-hcloud-network
